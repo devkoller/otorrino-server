@@ -18,12 +18,11 @@ const callback = async ({ request, response, callback }) => {
 		}
 	} catch (error) {
 		const logFilePath = path.join(process.cwd(), "error.log")
-		console.log(error)
 
 		const timestamp = new Date().toISOString()
 		const logMessage = `[${timestamp}] ${
 			error.stack || error.message
-		} - ${error}\n`
+		} - ${JSON.stringify(error)}\n`
 
 		fs.appendFile(logFilePath, logMessage, (err) => {
 			if (err) console.error("Error escribiendo en el log:", err)
