@@ -1,5 +1,7 @@
 const Responses = require("../../models/util/Responses")
 const Errors = require("../../models/util/Errors")
+const fs = require("fs")
+const path = require("path")
 
 const callback = async ({ request, response, callback }) => {
 	try {
@@ -15,7 +17,18 @@ const callback = async ({ request, response, callback }) => {
 			response.status(resp.status).send(resp.getResponse())
 		}
 	} catch (error) {
+		const logFilePath = path.join(process.cwd(), "error.log")
 		console.log(error)
+
+		const timestamp = new Date().toISOString()
+		const logMessage = `[${timestamp}] ${
+			error.stack || error.message
+		} - ${error}\n`
+
+		fs.appendFile(logFilePath, logMessage, (err) => {
+			if (err) console.error("Error escribiendo en el log:", err)
+		})
+
 		const err = new Errors({
 			name: "UnknownError",
 			message: "An unknown error has occurred",
