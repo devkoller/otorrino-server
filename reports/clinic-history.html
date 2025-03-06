@@ -111,59 +111,53 @@
           <div>
             <p class="flex gap-1">
               Cirugias: <span class="border-b border-black flex-1">
-
-                {{pathological_history.surgery}}
+                {{formatBoolean pathological_history.surgery}}
               </span>
             </p>
+            {{#if pathological_history.surgery}}
             <p class="flex gap-1">
               Cuales: <span class="border-b border-black flex-1">
-
                 {{pathological_history.surgery_description}}
               </span>
             </p>
+            {{/if}}
             <p class="flex gap-1">
               alergias: <span class="border-b border-black flex-1">
-
-                {{pathological_history.allergies}}
+                {{formatBoolean pathological_history.allergies}}
               </span>
             </p>
+            {{#if pathological_history.allergies}}
             <p class="flex gap-1">
               A que?: <sp class="border-b border-black flex-1">an>
-
                 {{pathological_history.allergies_description}}
               </span>
             </p>
           </div>
-
+          {{/if}}
           <div>
             <p class="flex gap-1">
               Asma: <span class="border-b border-black flex-1">
-
-                {{pathological_history.asthma}}
+                {{formatBoolean pathological_history.asthma}}
               </span>
             </p>
             <p class="flex gap-1">
               DM: <span class="border-b border-black flex-1">
 
-                {{pathological_history.dm}}
+                {{formatBoolean pathological_history.dm}}
               </span>
             </p>
             <p class="flex gap-1">
               HAS: <span class="border-b border-black flex-1">
-
-                {{pathological_history.has}}
+                {{formatBoolean pathological_history.has}}
               </span>
             </p>
             <p class="flex gap-1">
               Otras: <span class="border-b border-black flex-1">
-
                 {{pathological_history.other_diseases_description}}
               </span>
             </p>
           </div>
-
         </div>
-
       </div>
 
       <div class="flex flex-col">
@@ -171,20 +165,40 @@
           <h2 class="font-bold uppercase">
             antecedentes no patológicos
           </h2>
-          <p>
-            Tabaquismo: {{history.tabaquism}}
+          <p class="flex gap-1">
+            Tabaquismo:
+            <span class="border-b border-black flex-1">
+
+              {{formatBoolean history.tabaquism}}
+            </span>
           </p>
-          <p>
-            Alcoholismo: {{history.alcoholism}}
+          <p class="flex gap-1">
+            Alcoholismo:
+            <span class="border-b border-black flex-1">
+
+              {{formatBoolean history.alcoholism}}
+            </span>
           </p>
-          <p>
-            Usa lentes: {{history.use_glasses}}
+          <p class="flex gap-1">
+            Usa lentes:
+            <span class="border-b border-black flex-1">
+
+              {{formatBoolean history.use_glasses}}
+            </span>
           </p>
-          <p>
-            Convive con animales: {{history.animals}}
+          <p class="flex gap-1">
+            Convive con animales:
+            <span class="border-b border-black flex-1">
+
+              {{formatBoolean history.animals}}
+            </span>
           </p>
-          <p>
-            Hábitos de sueño: {{history.sleep_habits_description}}
+          <p class="flex gap-1">
+            Hábitos de sueño:
+            <span class="border-b border-black flex-1">
+
+              {{history.sleep_habits_description}}
+            </span>
           </p>
         </div>
       </div>

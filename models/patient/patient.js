@@ -31,7 +31,6 @@ class patient {
 			const db = _db.models.patient
 			const p = await db
 				.findOne({
-					logging: console.log,
 					include: [
 						{
 							model: _db.models.patient_address,

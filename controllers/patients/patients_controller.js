@@ -26,6 +26,7 @@ class patientsController {
 		this.createFamilyHistory = this.createFamilyHistory.bind(this)
 		this.createHistory = this.createHistory.bind(this)
 		this.createAddress = this.createAddress.bind(this)
+		this.helpers = this.helpers.bind(this)
 		this.makePDFHistory = this.makePDFHistory.bind(this)
 
 		// update histories
@@ -98,6 +99,44 @@ class patientsController {
 		}
 	}
 
+	helpers() {
+		return `
+      const jsreport = require('jsreport-proxy')
+      const qri = await jsreport.npm.require('qr-image@3.2.0')
+  
+      async function barcode(text) {
+          const png = qri.imageSync(text, { type: 'png' }).toString('base64')
+          return 'data:image/png;base64,' + png;
+      }
+      
+      async function qrs(text) {
+          const png = text.split('|')
+          return png[1]
+      }
+  
+  
+      function getPageNumber (pageIndex) {
+          if (pageIndex == null) {
+              return ''
+          }
+          const pageNumber = pageIndex + 1
+          return pageNumber
+      }
+  
+      function getTotalPages (pages) {
+          if (!pages) {
+              return ''
+          }
+          return pages.length
+      }
+
+      function formatBoolean (value) {
+        return value ? 'Sí' : 'No'
+      }
+                
+    `
+	}
+
 	async makePDFHistory(req, response) {
 		const { id } = req.params
 		const { id_clinic } = req.query
@@ -119,6 +158,7 @@ class patientsController {
 						content: main,
 						engine: "handlebars",
 						recipe: "chrome-pdf",
+						helpers: this.helpers(),
 						chrome: {
 							width: "21.59cm",
 							height: "13.97cm",
@@ -152,13 +192,13 @@ class patientsController {
 					},
 				})
 				.then(async (resp) => resp)
-				.catch((error) => {
-					console.log(error)
-					return response.status(500).send({
-						status: 500,
-						message: "Error al generar el reporte",
-					})
-				})
+			// .catch((error) => {
+			// 	console.log(error)
+			// 	return response.status(500).send({
+			// 		status: 500,
+			// 		message: "Error al generar el reporte",
+			// 	})
+			// })
 
 			resp.pipe(response)
 
@@ -172,6 +212,10 @@ class patientsController {
 			// 	},
 			// })
 		} catch (error) {
+			console.log(
+				"🚀 > patients_controller.js:215 > patientsController > makePDFHistory > error:",
+				error
+			)
 			throw {
 				name: "CreateClinicHistoryError",
 				message: "",

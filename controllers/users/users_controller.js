@@ -70,6 +70,10 @@ class userController {
 
 	async login(request) {
 		const { email, password, keepSessionOpen } = request.body
+		console.log(
+			"🚀 > users_controller.js:73 > userController > login > request.body:",
+			request.body
+		)
 		try {
 			const usuariosModel = new _users()
 			const usuario = await usuariosModel.findByEmail(email)
@@ -119,6 +123,10 @@ class userController {
 				},
 			})
 		} catch (error) {
+			console.log(
+				"🚀 > users_controller.js:126 > userController > login > error:",
+				error
+			)
 			throw {
 				name: "LoginError",
 				message: "",
