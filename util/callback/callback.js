@@ -17,6 +17,7 @@ const callback = async ({ request, response, callback }) => {
 			response.status(resp.status).send(resp.getResponse())
 		}
 	} catch (error) {
+		console.log("🚀 > callback.js:20 > callback > error:", error)
 		const logFilePath = path.join(process.cwd(), "error.log")
 
 		const timestamp = new Date().toISOString()

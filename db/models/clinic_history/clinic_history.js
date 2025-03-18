@@ -76,6 +76,15 @@ module.exports = function (sequelize, DataTypes) {
 				type: DataTypes.TEXT,
 				allowNull: true,
 			},
+			mc: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			idUser: {
+				type: DataTypes.INTEGER,
+				allowNull: true,
+				comment: "User ID",
+			},
 		},
 		{
 			sequelize,

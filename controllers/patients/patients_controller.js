@@ -6,6 +6,8 @@ const {
 	_pathological_history,
 	_family_history,
 	_history,
+	_medical_recipe,
+	_medical_recipe_details,
 } = require("../../models")
 const fs = require("fs")
 const path = require("path")
@@ -18,6 +20,7 @@ const client = require("@jsreport/nodejs-client")(
 class patientsController {
 	constructor() {
 		this.createPatient = this.createPatient.bind(this)
+		this.updatePatient = this.updatePatient.bind(this)
 		this.getAllPatients = this.getAllPatients.bind(this)
 
 		// create histories
@@ -52,6 +55,26 @@ class patientsController {
 		} catch (error) {
 			throw {
 				name: "CreatePatientError",
+				message: "",
+				error,
+			}
+		}
+	}
+
+	async updatePatient(req) {
+		let body = req.body
+		try {
+			const patientModel = new _patient()
+			await patientModel.update(body, body.id)
+
+			return new Success({
+				name: "ModifyPatientSuccess",
+				message: "Paciente modificado exitosamente",
+				status: 200,
+			})
+		} catch (error) {
+			throw {
+				name: "ModifyPatientError",
 				message: "",
 				error,
 			}
@@ -226,9 +249,29 @@ class patientsController {
 
 	// create histories
 	async createClinicHistory(req) {
+		const { auth } = req.body
 		try {
+			const { idPatient, medications } = req.body
 			const clinicHistoryModel = new _clinic_history()
-			await clinicHistoryModel.create(req.body)
+			const clinic = await clinicHistoryModel.create({
+				...req.body,
+				idUser: auth.user.id,
+			})
+
+			const recipeModel = new _medical_recipe()
+			const recipe = await recipeModel.create({
+				idUser: auth.user.id,
+				idPatient,
+				idClinic: clinic.id,
+			})
+			const recipeDetailModel = new _medical_recipe_details()
+
+			for (let element of medications) {
+				await recipeDetailModel.create({
+					...element,
+					id_medical_recipe: recipe.id,
+				})
+			}
 
 			return new Success({
 				name: "CreateClinicHistorySuccess",

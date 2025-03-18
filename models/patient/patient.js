@@ -52,13 +52,32 @@ class patient {
 								"face_description",
 								"evolution",
 								"idx",
-								"plan",
+								"mc",
 								[
 									sequelize.literal(
 										"CONVERT_TZ(clinic_histories.updatedAt, '+00:00', '-06:00')"
 									),
 									"updatedAt",
 								],
+							],
+							include: [
+								{
+									model: _db.models.users,
+									attributes: ["id", "name", "lastname1", "lastname2"],
+								},
+								{
+									model: _db.models.medical_recipe,
+									include: [
+										{
+											model: _db.models.medical_recipe_details,
+											include: [
+												{
+													model: _db.models.medications,
+												},
+											],
+										},
+									],
+								},
 							],
 						},
 						{

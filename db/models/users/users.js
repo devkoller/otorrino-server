@@ -62,6 +62,7 @@ module.exports = function (sequelize, DataTypes) {
 				type: DataTypes.TEXT,
 				allowNull: true,
 				comment: "Service Name",
+				defaultValue: "otorrino123",
 			},
 			email: {
 				type: DataTypes.STRING(255),
