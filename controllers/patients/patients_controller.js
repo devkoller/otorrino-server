@@ -161,14 +161,10 @@ class patientsController {
 	}
 
 	async makePDFHistory(req, response) {
-		const { id } = req.params
-		const { id_clinic } = req.query
+		const { id_clinic } = req.body
 		try {
-			const patientModel = new _patient()
-			let patients = await patientModel.findById(id)
-
-			const clinicHistoryModel = new _clinic_history()
-			let clinicHistory = await clinicHistoryModel.findById(id_clinic)
+			const medicalRecipeModel = new _medical_recipe()
+			const medicalRecipe = await medicalRecipeModel.findByClinic(id_clinic)
 
 			const main = fs.readFileSync(
 				path.join(__dirname, "../../reports/clinic-history.html"),
@@ -184,56 +180,37 @@ class patientsController {
 						helpers: this.helpers(),
 						chrome: {
 							width: "21.59cm",
-							height: "13.97cm",
+							height: "27.94cm",
+							marginTop: "2cm",
+							marginBottom: "2cm",
+							marginLeft: "2cm",
+							marginRight: "2cm",
 						},
 						pdfMeta: {
 							title: "Historia clínica",
 						},
 					},
-					data: {
-						...patients,
-						names: `${patients.name} ${patients.lastname1} ${patients.lastname2}`,
-						patient_address: {
-							shouldItPrint: patients.patient_address ? true : false,
-							...patients.patient_address.dataValues,
-						},
-						clinic: {
-							...clinicHistory,
-						},
-						history: {
-							shouldItPrint: patients.history ? true : false,
-							...patients.history.dataValues,
-						},
-						pathological_history: {
-							shouldItPrint: patients.pathological_history ? true : false,
-							...patients.pathological_history.dataValues,
-						},
-						family_history: {
-							shouldItPrint: patients.family_history ? true : false,
-							...patients.family_history.dataValues,
-						},
-					},
+					data: medicalRecipe,
 				})
 				.then(async (resp) => resp)
-			// .catch((error) => {
-			// 	console.log(error)
-			// 	return response.status(500).send({
-			// 		status: 500,
-			// 		message: "Error al generar el reporte",
-			// 	})
-			// })
+				.catch((error) => {
+					console.log(error)
+					return response.status(500).send({
+						status: 500,
+						message: "Error al generar el reporte",
+					})
+				})
 
-			resp.pipe(response)
+			// resp.pipe(response)
+			let buffer = await resp.body()
+			let base64 = buffer.toString("base64")
 
-			// return new Success({
-			// 	name: "GetAllPatientsSuccess",
-			// 	message: "Pacientes obtenidos exitosamente",
-			// 	status: 200,
-			// 	data: {
-			// 		patients,
-			// 		clinicHistory,
-			// 	},
-			// })
+			return new Success({
+				name: "GetAllPatientsSuccess",
+				message: "Pacientes obtenidos exitosamente",
+				status: 200,
+				data: base64,
+			})
 		} catch (error) {
 			console.log(
 				"🚀 > patients_controller.js:215 > patientsController > makePDFHistory > error:",

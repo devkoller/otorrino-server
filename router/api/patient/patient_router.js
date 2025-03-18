@@ -39,14 +39,13 @@ router.get("/get/:id", [auth.decryptToken], (request, response) => {
 	})
 })
 
-// router.get("/pdf/:id", [], (request, response) => {
-// 	callback({
-// 		request,
-// 		response,
-// 		callback: patient.makePDFHistory,
-// 	})
-// })
-router.get("/pdf/:id", [], patient.makePDFHistory)
+router.post("/pdf", [auth.decryptToken], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: patient.makePDFHistory,
+	})
+})
 
 // patients create histories
 router.post(
