@@ -19,7 +19,7 @@ router.patch("/update-user", [], (request, response) => {
 	callback({
 		request,
 		response,
-		callback: user.updateUser,
+		callback: user.update,
 	})
 })
 
@@ -39,11 +39,59 @@ router.get("/check-session", [auth.decryptToken], (request, response) => {
 	})
 })
 
+router.get("/get-user/:id", [auth.decryptToken], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: user.getUser,
+	})
+})
+
+router.patch("/change-password", [auth.decryptToken], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: user.changePassword,
+	})
+})
+
+router.patch("/upload-profile-image", [], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: user.uploadImage,
+	})
+})
+
+router.get("/get-profile-image/:id", [], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: user.userImage,
+	})
+})
+
 router.get("/list-users", [], (request, response) => {
 	callback({
 		request,
 		response,
 		callback: user.getAllUsers,
+	})
+})
+
+router.get("/list-doctors", [], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: user.findDoctors,
+	})
+})
+
+router.get("/list-published", [], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: user.findPublished,
 	})
 })
 

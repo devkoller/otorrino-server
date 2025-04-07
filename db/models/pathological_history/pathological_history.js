@@ -44,13 +44,28 @@ module.exports = function (sequelize, DataTypes) {
 				allowNull: true,
 				comment: "Asthma",
 			},
+			asthma_description: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+				comment: "Asthma",
+			},
 			dm: {
 				type: DataTypes.BOOLEAN,
 				allowNull: true,
 				comment: "Diabetes Mellitus",
 			},
+			dm_description: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+				comment: "Diabetes Mellitus",
+			},
 			has: {
 				type: DataTypes.BOOLEAN,
+				allowNull: true,
+				comment: "Hypertension Arterial System",
+			},
+			has_description: {
+				type: DataTypes.TEXT,
 				allowNull: true,
 				comment: "Hypertension Arterial System",
 			},

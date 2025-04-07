@@ -1,12 +1,12 @@
-const { Sequelize } = require('sequelize')
+const { Sequelize } = require("sequelize")
 
-const { initModels } = require('../models/init-models.js')
+const { initModels } = require("../models/init-models.js")
 
-const DATABASE = process.env.DB_NAME || 'hcg'
-const USER = process.env.DB_USER || 'sa'
-const PASSWORD = process.env.DB_PASSWORD || '123456'
-const HOST = process.env.DB_HOST || 'localhost'
-const DIALECT = process.env.DB_DIALECT || 'mssql'
+const DATABASE = process.env.DB_NAME || "hcg"
+const USER = process.env.DB_USER || "sa"
+const PASSWORD = process.env.DB_PASSWORD || "123456"
+const HOST = process.env.DB_HOST || "localhost"
+const DIALECT = process.env.DB_DIALECT || "mysql"
 const PORT = process.env.DB_PORT || 1433
 const DEBUG = process.env.DEBUG || false
 
@@ -16,7 +16,7 @@ const db = new Sequelize(DATABASE, USER, PASSWORD, {
 	port: PORT,
 	dialect: DIALECT,
 	dialectOptions: {},
-	timezone: '-06:00',
+	timezone: "-06:00",
 	// dialectOptions: {
 	// 	// useUTC: false,
 	// 	// timezone: 'GMT-6'

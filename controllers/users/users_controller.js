@@ -7,10 +7,15 @@ const {
 } = require("../../models")
 const jwt = require("jsonwebtoken")
 const CryptoJS = require("crypto-js")
+const path = require("path")
+const fs = require("fs")
 
 class userController {
 	constructor() {
 		this.create = this.create.bind(this)
+		this.update = this.update.bind(this)
+		this.changePassword = this.changePassword.bind(this)
+		this.getUser = this.getUser.bind(this)
 		this.login = this.login.bind(this)
 		this.checkMyGrants = this.checkMyGrants.bind(this)
 		this.getAllUsers = this.getAllUsers.bind(this)
@@ -18,16 +23,13 @@ class userController {
 		this.getAllPermissions = this.getAllPermissions.bind(this)
 		this.updateGrants = this.updateGrants.bind(this)
 
-		this.findUser = this.findUser.bind(this)
-		this.deleteUser = this.deleteUser.bind(this)
-		this.verifyPermission = this.verifyPermission.bind(this)
+		this.findDoctors = this.findDoctors.bind(this)
+		this.findPublished = this.findPublished.bind(this)
 	}
 
 	async create(request) {
 		const body = request.body
 		try {
-			// const apellido = body.ape1.split(" ")
-			// const password = body.nombre.charAt(0) + apellido[0].toLowerCase()
 			const usuarioModel = new _users()
 			await usuarioModel.create(body)
 
@@ -68,12 +70,157 @@ class userController {
 		}
 	}
 
+	async update({ body }) {
+		try {
+			const usuarioModel = new _users()
+			await usuarioModel.update(body, body.id)
+
+			// const account = fs.readFileSync(
+			// 	path.join(__dirname, "../../messages/envio_pdf.html"),
+			// 	"utf8"
+			// )
+			// const html = account
+			// 	.replace(
+			// 		"{{nombre}}",
+			// 		`${persona.nombre} ${persona.ape1} ${persona.ape2 || ""}`
+			// 	)
+			// 	.replace("{{username}}", usuario.username)
+			// 	.replace("{{password}}", password)
+
+			// const from = process.env.EMAIL
+
+			// const mailOptions = {
+			// 	from: `NO REPLY <${from}>`,
+			// 	to: body.correo,
+			// 	subject: "Bienvenido/a a Meditiva - Acceso al Sistema",
+			// 	html,
+			// }
+
+			// await mailer.sendEmail(mailOptions)
+
+			return new Success({
+				name: "CreatedNewUser",
+				message: "Usuario creado exitosamente",
+				status: 200,
+			})
+		} catch (error) {
+			throw {
+				name: "CreateUserError",
+				message: "",
+				error,
+			}
+		}
+	}
+
+	async uploadImage({ body, files }) {
+		let { id } = body
+		try {
+			let file = files.profile_image
+			const usuarioModel = new _users()
+
+			let updateUser = {
+				image: "webp",
+			}
+			await usuarioModel.update(updateUser, id)
+
+			let pathImage = path.join(__dirname, `../../public/img/${id}.webp`)
+
+			file.mv(pathImage, (err) => {
+				if (err) {
+					throw {
+						name: "UploadImageError",
+						message: "Error uploading image",
+						error: err,
+					}
+				}
+			})
+
+			return new Success({
+				name: "UploadImageSuccess",
+				message: "Imagen subida exitosamente",
+				status: 200,
+			})
+		} catch (error) {
+			throw {
+				name: "UploadImageError",
+				message: "",
+				error,
+			}
+		}
+	}
+
+	async userImage({ params }) {
+		let { id } = params
+		try {
+			let pathImage = path.join(__dirname, `../../public/img/${id}.webp`)
+
+			if (!fs.existsSync(pathImage)) {
+				throw new Errors({
+					name: "ImageNotFound",
+					message: "Image not found",
+					status: 404,
+				})
+			}
+
+			return new Success({
+				name: "UploadImageSuccess",
+				message: "Imagen subida exitosamente",
+				files: pathImage,
+				status: 200,
+			})
+		} catch (error) {
+			throw {
+				name: "UploadImageError",
+				message: "",
+				error,
+			}
+		}
+	}
+
+	async changePassword({ body }) {
+		try {
+			const usuarioModel = new _users()
+			await usuarioModel.update(body, body.id)
+
+			// const account = fs.readFileSync(
+			// 	path.join(__dirname, "../../messages/envio_pdf.html"),
+			// 	"utf8"
+			// )
+			// const html = account
+			// 	.replace(
+			// 		"{{nombre}}",
+			// 		`${persona.nombre} ${persona.ape1} ${persona.ape2 || ""}`
+			// 	)
+			// 	.replace("{{username}}", usuario.username)
+			// 	.replace("{{password}}", password)
+
+			// const from = process.env.EMAIL
+
+			// const mailOptions = {
+			// 	from: `NO REPLY <${from}>`,
+			// 	to: body.correo,
+			// 	subject: "Bienvenido/a a Meditiva - Acceso al Sistema",
+			// 	html,
+			// }
+
+			// await mailer.sendEmail(mailOptions)
+
+			return new Success({
+				name: "CreatedNewUser",
+				message: "Usuario creado exitosamente",
+				status: 200,
+			})
+		} catch (error) {
+			throw {
+				name: "CreateUserError",
+				message: "",
+				error,
+			}
+		}
+	}
+
 	async login(request) {
-		const { email, password, keepSessionOpen } = request.body
-		console.log(
-			"🚀 > users_controller.js:73 > userController > login > request.body:",
-			request.body
-		)
+		const { email, password, keepSessionOpen = "false" } = request.body
 		try {
 			const usuariosModel = new _users()
 			const usuario = await usuariosModel.findByEmail(email)
@@ -99,7 +246,7 @@ class userController {
 				{
 					user: {
 						id: usuario.id,
-						keepSessionOpen,
+						keepSessionOpen: keepSessionOpen ? true : false,
 					},
 				},
 				process.env.TOKEN_KEY,
@@ -123,10 +270,62 @@ class userController {
 				},
 			})
 		} catch (error) {
-			console.log(
-				"🚀 > users_controller.js:126 > userController > login > error:",
-				error
-			)
+			const logFilePath = path.join(process.cwd(), "error.log")
+
+			const timestamp = new Date().toISOString()
+			const logMessage = `[${timestamp}] ${
+				error.stack || error.message
+			} - ${JSON.stringify(error)}\n`
+
+			fs.appendFile(logFilePath, logMessage, (err) => {
+				if (err) console.error("Error escribiendo en el log:", err)
+			})
+			throw {
+				name: "LoginError",
+				message: "",
+				error,
+			}
+		}
+	}
+
+	async getUser({ params }) {
+		const { id } = params
+		try {
+			const usuariosModel = new _users()
+			const usuario = await usuariosModel.findById(id)
+
+			if (!usuario)
+				throw new Errors({
+					name: "UserNotFound",
+					message: "Usuario no encontrado y/o contraseña incorrecta",
+					status: 404,
+				})
+
+			return new Success({
+				name: "LoginSuccessful",
+				message: "Login successful",
+				status: 200,
+				data: {
+					id: usuario.id,
+					name: usuario.name,
+					lastname1: usuario.lastname1,
+					lastname2: usuario.lastname2,
+					email: usuario.email,
+					description: usuario.description,
+					speciality: usuario.speciality,
+				},
+			})
+		} catch (error) {
+			const logFilePath = path.join(process.cwd(), "error.log")
+
+			const timestamp = new Date().toISOString()
+			const logMessage = `[${timestamp}] ${
+				error.stack || error.message
+			} - ${JSON.stringify(error)}\n`
+
+			fs.appendFile(logFilePath, logMessage, (err) => {
+				if (err) console.error("Error escribiendo en el log:", err)
+			})
 			throw {
 				name: "LoginError",
 				message: "",
@@ -241,13 +440,29 @@ class userController {
 		}
 	}
 
-	async findUser(request) {
-		const { id } = request.params
+	async findDoctors() {
 		try {
-			const usuariosModel = new _usuarios({
-				id: id,
+			const usuariosModel = new _users()
+			const usuario = await usuariosModel.findDoctors()
+
+			return new Success({
+				name: "LoginSuccessful",
+				message: "Login successful",
+				status: 200,
+				data: usuario,
 			})
-			const usuario = await usuariosModel.findById()
+		} catch (error) {
+			throw {
+				name: "FindUserError",
+				message: "Error LoginError > user controller",
+			}
+		}
+	}
+
+	async findPublished() {
+		try {
+			const usuariosModel = new _users()
+			const usuario = await usuariosModel.findPublished()
 
 			return new Success({
 				name: "LoginSuccessful",
@@ -255,7 +470,6 @@ class userController {
 				status: 200,
 				data: {
 					...usuario,
-					password: null,
 				},
 			})
 		} catch (error) {
@@ -268,106 +482,6 @@ class userController {
 				message: "Error LoginError > user controller",
 			}
 		}
-	}
-
-	async updateUser(request) {
-		try {
-			let body = request.body
-			delete body.password
-
-			const usuarioModel = new _users()
-			await usuarioModel.update(body, body.id)
-
-			return new Success({
-				name: "UpdateUserSuccessful",
-				message: "Usuario actualizado exitosamente",
-				status: 200,
-			})
-		} catch (error) {
-			throw {
-				name: "CreateUserError",
-				message: "",
-				error,
-			}
-		}
-	}
-
-	async updatePassword(request) {
-		const { auth, password, newPassword, newPasswordC } = request.body
-		try {
-			if (newPassword !== newPasswordC) {
-				throw new Errors({
-					name: "PasswordNotMatch",
-					message: "Las contraseñas no coinciden",
-					status: 404,
-				})
-			}
-
-			const usuarioModel = new _usuarios({
-				id: auth.user.id,
-				password: newPassword,
-			})
-			const usuario = await usuarioModel.findById()
-
-			const key = process.env.SECRET_KEY || "secret"
-			const bytes = CryptoJS.AES.decrypt(usuario.password, key)
-			const decrypted = bytes.toString(CryptoJS.enc.Utf8)
-
-			if (decrypted !== password)
-				throw new Errors({
-					name: "UserNotFound",
-					message: "La contraseña actual no coincide",
-					status: 404,
-				})
-
-			await usuarioModel.updatePassword()
-
-			return new Success({
-				name: "CreatedNewUser",
-				message: "Usuario creado exitosamente",
-				status: 200,
-			})
-		} catch (error) {
-			console.log(
-				"🚀 > file: user_controller.js:234 > userController > updatePassword > error:",
-				error
-			)
-			throw {
-				name: "CreateUserError",
-				message: "Error creating new user > user controller",
-			}
-		}
-	}
-
-	async deleteUser(request) {
-		const { id } = request.body
-		try {
-			const usuarioModel = new _usuarios({
-				id,
-			})
-			await usuarioModel.delete()
-
-			return new Success({
-				name: "DeleteUserSuccessful",
-				message: "Usuario eliminado exitosamente",
-				status: 200,
-			})
-		} catch (error) {
-			console.log(
-				"🚀 > file: user_controller.js:336 > userController > deleteUser > error:",
-				error
-			)
-			throw {
-				name: "DeleteUserError",
-				message: "Error deleting user > user controller",
-			}
-		}
-	}
-
-	async verifyPermission(request, grants) {
-		let userGrants = await this.checkMyGrants(request)
-		if (!userGrants) return false
-		return userGrants.data.Statement[0].Action.includes(grants)
 	}
 }
 

@@ -19,6 +19,7 @@ const _medications = require("./medications/medications")
 const _medical_recipe = require("./patient/medical_recipe")
 const _medical_recipe_details = require("./patient/medical_recipe_details")
 const _patient_assigned = require("./patient/patient_assigned")
+const _appointment = require("./patient/appointment")
 
 module.exports = {
 	Errors,
@@ -41,4 +42,5 @@ module.exports = {
 	_medical_recipe,
 	_medical_recipe_details,
 	_patient_assigned,
+	_appointment,
 }

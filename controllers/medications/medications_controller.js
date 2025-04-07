@@ -1,4 +1,9 @@
-const { Success, Errors, _medications } = require("../../models")
+const {
+	Success,
+	Errors,
+	_medications,
+	_medical_recipe_details,
+} = require("../../models")
 
 class medicationsController {
 	constructor() {
@@ -30,8 +35,8 @@ class medicationsController {
 
 	async getAllMedications() {
 		try {
-			const medicationsModel = new _medications({})
-			const medication = await medicationsModel.findAll()
+			const medicationsModel = new _medical_recipe_details({})
+			const medication = await medicationsModel.findMedicalRecipeDetails()
 
 			return new Success({
 				name: "GetAllMedications",

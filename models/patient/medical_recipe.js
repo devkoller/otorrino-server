@@ -56,6 +56,9 @@ class medical_recipe {
 								},
 							],
 						},
+						{
+							model: _db.models.patient,
+						},
 					],
 					where: {
 						idClinic: id_clinic,

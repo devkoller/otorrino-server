@@ -28,6 +28,18 @@ module.exports = function (sequelize, DataTypes) {
 				comment: "Service Public",
 				defaultValue: false,
 			},
+			isDoctor: {
+				type: DataTypes.BOOLEAN,
+				allowNull: true,
+				comment: "Service Public",
+				defaultValue: false,
+			},
+			isPublished: {
+				type: DataTypes.BOOLEAN,
+				allowNull: true,
+				comment: "Service Public",
+				defaultValue: false,
+			},
 			lastname1: {
 				type: DataTypes.STRING(50),
 				allowNull: true,
@@ -59,6 +71,18 @@ module.exports = function (sequelize, DataTypes) {
 				comment: "Service Name",
 			},
 			password: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+				comment: "Service Name",
+				defaultValue: "otorrino123",
+			},
+			speciality: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+				comment: "Service Name",
+				defaultValue: "otorrino123",
+			},
+			description: {
 				type: DataTypes.TEXT,
 				allowNull: true,
 				comment: "Service Name",

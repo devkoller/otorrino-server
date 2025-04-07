@@ -19,6 +19,11 @@ module.exports = function (sequelize, DataTypes) {
 				allowNull: true,
 				comment: "Service Description",
 			},
+			suffering: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+				comment: "Suffering Description",
+			},
 			icon: {
 				type: DataTypes.STRING(255),
 				allowNull: true,

@@ -16,7 +16,7 @@ module.exports = function (sequelize, DataTypes) {
 			},
 			id_medicine: {
 				type: DataTypes.INTEGER,
-				allowNull: false,
+				allowNull: true,
 				comment: "Medicine ID",
 			},
 			dosage: {
@@ -38,6 +38,10 @@ module.exports = function (sequelize, DataTypes) {
 				type: DataTypes.TEXT,
 				allowNull: true,
 				comment: "Special Instructions",
+			},
+			medicine_description: {
+				type: DataTypes.TEXT,
+				allowNull: false,
 			},
 		},
 		{

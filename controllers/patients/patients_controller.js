@@ -8,9 +8,12 @@ const {
 	_history,
 	_medical_recipe,
 	_medical_recipe_details,
+	_appointment,
 } = require("../../models")
 const fs = require("fs")
 const path = require("path")
+const { functions } = require("../../util")
+const { format } = require("date-fns")
 const client = require("@jsreport/nodejs-client")(
 	process.env.JSREPORT_URL,
 	process.env.JSREPORT_USER,
@@ -38,6 +41,11 @@ class patientsController {
 		this.updateFamilyHistory = this.updateFamilyHistory.bind(this)
 		this.updateHistory = this.updateHistory.bind(this)
 		this.updateAddress = this.updateAddress.bind(this)
+
+		//appointment
+		this.createAppointment = this.createAppointment.bind(this)
+		this.updateAppointment = this.updateAppointment.bind(this)
+		this.getAllAppointments = this.getAllAppointments.bind(this)
 	}
 
 	async createPatient(req) {
@@ -107,11 +115,17 @@ class patientsController {
 			const patientModel = new _patient()
 			let patients = await patientModel.findById(id)
 
+			const appointmentModel = new _appointment()
+			let appointments = await appointmentModel.findAllByPatient(id)
+
 			return new Success({
 				name: "GetAllPatientsSuccess",
 				message: "Pacientes obtenidos exitosamente",
 				status: 200,
-				data: patients,
+				data: {
+					...patients,
+					appointments,
+				},
 			})
 		} catch (error) {
 			throw {
@@ -161,11 +175,32 @@ class patientsController {
 	}
 
 	async makePDFHistory(req, response) {
-		const { id_clinic } = req.body
+		const { id_clinic, tam } = req.body
 		try {
+			const size = {
+				1: {
+					width: "21.59cm",
+					height: "13.97cm",
+					marginTop: "3cm",
+					marginBottom: "2cm",
+					marginLeft: "3.5cm",
+					marginRight: "1.5cm",
+				},
+				2: {
+					width: "21.59cm",
+					height: "27.94cm",
+					marginTop: "3cm",
+					marginBottom: "2cm",
+					marginLeft: "3.5cm",
+					marginRight: "1.5cm",
+				},
+			}
 			const medicalRecipeModel = new _medical_recipe()
 			const medicalRecipe = await medicalRecipeModel.findByClinic(id_clinic)
 
+			let patient = medicalRecipe.patient
+			let name = `${patient.name} ${patient.lastname1} ${patient.lastname2}`
+			let date = format(medicalRecipe.createdAt, "MMMM d, yyyy")
 			const main = fs.readFileSync(
 				path.join(__dirname, "../../reports/clinic-history.html"),
 				"utf8"
@@ -179,18 +214,17 @@ class patientsController {
 						recipe: "chrome-pdf",
 						helpers: this.helpers(),
 						chrome: {
-							width: "21.59cm",
-							height: "27.94cm",
-							marginTop: "2cm",
-							marginBottom: "2cm",
-							marginLeft: "2cm",
-							marginRight: "2cm",
+							...size[tam],
 						},
 						pdfMeta: {
-							title: "Historia clínica",
+							title: "Receta media" + name + " " + date,
 						},
 					},
-					data: medicalRecipe,
+					data: {
+						name,
+						date,
+						...medicalRecipe,
+					},
 				})
 				.then(async (resp) => resp)
 				.catch((error) => {
@@ -225,13 +259,13 @@ class patientsController {
 	}
 
 	// create histories
-	async createClinicHistory(req) {
-		const { auth } = req.body
+	async createClinicHistory({ body }) {
+		const { auth } = body
 		try {
-			const { idPatient, medications } = req.body
+			const { idPatient, medications, appointment } = body
 			const clinicHistoryModel = new _clinic_history()
 			const clinic = await clinicHistoryModel.create({
-				...req.body,
+				...body,
 				idUser: auth.user.id,
 			})
 
@@ -250,10 +284,16 @@ class patientsController {
 				})
 			}
 
+			if (appointment) {
+				const appointmentModel = new _appointment()
+				await appointmentModel.update({ status: 2 }, appointment.id)
+			}
+
 			return new Success({
 				name: "CreateClinicHistorySuccess",
 				message: "Historia clínica creada exitosamente",
 				status: 200,
+				data: clinic,
 			})
 		} catch (error) {
 			throw {
@@ -430,6 +470,83 @@ class patientsController {
 		} catch (error) {
 			throw {
 				name: "UpdateHistoryError",
+				message: "",
+				error,
+			}
+		}
+	}
+
+	async createAppointment(req) {
+		let body = req.body
+		try {
+			const appointmentModel = new _appointment()
+
+			let { auth } = req.body
+
+			let start = functions.toMinutes(body.startTime)
+			let end = start + body.duration
+			let endTime = functions.toString(end)
+			let createdBy = auth.user.id
+
+			let saveBody = {
+				...req.body,
+				start,
+				end,
+				endTime,
+				createdBy,
+			}
+
+			await appointmentModel.create(saveBody)
+
+			return new Success({
+				name: "CreateAppointmentSuccess",
+				message: "Cita creada exitosamente",
+				status: 200,
+			})
+		} catch (error) {
+			throw {
+				name: "CreateAppointmentError",
+				message: "",
+				error,
+			}
+		}
+	}
+
+	async updateAppointment(req) {
+		let body = req.body
+
+		try {
+			const appointmentModel = new _appointment()
+			await appointmentModel.update(body, body.id)
+
+			return new Success({
+				name: "UpdateAppointmentSuccess",
+				message: "Cita actualizada exitosamente",
+				status: 200,
+			})
+		} catch (error) {
+			throw {
+				name: "UpdateAppointmentError",
+				message: "",
+				error,
+			}
+		}
+	}
+
+	async getAllAppointments() {
+		try {
+			const appointmentModel = new _appointment()
+			let appointments = await appointmentModel.findAll()
+
+			return new Success({
+				name: "GetAllAppointmentsSuccess",
+				message: "Citas obtenidas exitosamente",
+				status: 200,
+				data: appointments,
+			})
+		} catch (error) {
+			throw {
+				name: "GetAllAppointmentsError",
 				message: "",
 				error,
 			}

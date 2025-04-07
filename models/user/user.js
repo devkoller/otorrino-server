@@ -7,6 +7,8 @@ class usuarios {
 		this.findById = this.findById.bind(this)
 		this.update = this.update.bind(this)
 		this.findAll = this.findAll.bind(this)
+		this.findDoctors = this.findDoctors.bind(this)
+		this.findPublished = this.findPublished.bind(this)
 	}
 
 	async create(body) {
@@ -89,9 +91,76 @@ class usuarios {
 						"academic",
 						"image",
 						"email",
+						"speciality",
+						"description",
+						"isPublished",
+						"isDoctor",
 					],
 					where: {
 						active: 1,
+					},
+				})
+				.catch((error) => {
+					throw error
+				})
+
+			return user?.map((user) => user.dataValues)
+		} catch (error) {
+			throw {
+				name: "FindError",
+				message: "",
+				error,
+			}
+		}
+	}
+	async findDoctors() {
+		try {
+			const db = _db.models.users
+			const user = await db
+				.findAll({
+					attributes: [
+						"id",
+						"name",
+						"lastname1",
+						"lastname2",
+						"academic",
+						"image",
+					],
+					where: {
+						active: 1,
+						isDoctor: 1,
+					},
+				})
+				.catch((error) => {
+					throw error
+				})
+
+			return user?.map((user) => user.dataValues)
+		} catch (error) {
+			throw {
+				name: "FindError",
+				message: "",
+				error,
+			}
+		}
+	}
+	async findPublished() {
+		try {
+			const db = _db.models.users
+			const user = await db
+				.findAll({
+					attributes: [
+						"id",
+						"name",
+						"lastname1",
+						"lastname2",
+						"academic",
+						"image",
+						"description",
+					],
+					where: {
+						active: 1,
+						isPublished: 1,
 					},
 				})
 				.catch((error) => {

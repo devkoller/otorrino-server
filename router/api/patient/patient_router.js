@@ -153,4 +153,33 @@ router.put("/update-address", [auth.decryptToken], (request, response) => {
 	})
 })
 
+// patient appointments
+router.post("/appointment/create", [auth.decryptToken], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: patient.createAppointment,
+	})
+})
+
+router.get("/appointment/get-all", [auth.decryptToken], (request, response) => {
+	callback({
+		request,
+		response,
+		callback: patient.getAllAppointments,
+	})
+})
+
+router.get(
+	"/get-appointments/:id",
+	[auth.decryptToken],
+	(request, response) => {
+		callback({
+			request,
+			response,
+			callback: patient.getAppointmentsById,
+		})
+	}
+)
+
 module.exports = router

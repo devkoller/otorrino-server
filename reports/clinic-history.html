@@ -6,6 +6,17 @@
   <script>
     tailwind.config = {
       theme: {
+        listStyleType: {
+          decimal: 'decimal',
+          decimalLeadingZero: 'decimal-leading-zero',
+          lowerAlpha: 'lower-alpha',
+          lowerGreek: 'lower-greek',
+          lowerRoman: 'lower-roman',
+          none: 'none',
+          square: 'square',
+          upperAlpha: 'upper-alpha',
+          upperRoman: 'upper-roman'
+        },
         extend: {
           colors: {
             fuertesito: '#6D6E70',
@@ -27,18 +38,20 @@
   <title>Historia clínica</title>
 </head>
 <body class="">
-  {{#each medical_recipe_details}}
 
-  <p>
-    {{medication.brand}} - {{medication.name}} - {{medication.presentation}}
-  </p>
-  <p>
-    {{frequency}}
-  </p>
-  <p>
-    {{duration}}
-  </p>
+  <div class="flex justify-between items-center">
+    <h1 class="text-lg font-bold">{{name}}</h1>
+    <p class="font-semibold">{{date}}</p>
+  </div>
 
-  {{/each}}
+  <ol class="list-decimal px-5">
+    {{#each medical_recipe_details}}
+    <li class="">
+      <p>
+        {{medicine_description}}, {{frequency}}, {{duration}}
+      </p>
+    </li>
+    {{/each}}
+  </ol>
 </body>
 </html>

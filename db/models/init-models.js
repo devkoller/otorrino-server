@@ -1,5 +1,6 @@
 var DataTypes = require("sequelize").DataTypes
 var _actions = require("./actions/actions")
+var _appointment = require("./appointment/appointment")
 var _areas = require("./areas/areas")
 var _clinic_history = require("./clinic_history/clinic_history")
 var _encounter = require("./encounter/encounter")
@@ -23,6 +24,7 @@ var _users = require("./users/users")
 
 function initModels(sequelize) {
 	var actions = _actions(sequelize, DataTypes)
+	var appointment = _appointment(sequelize, DataTypes)
 	var areas = _areas(sequelize, DataTypes)
 	var clinic_history = _clinic_history(sequelize, DataTypes)
 	var encounter = _encounter(sequelize, DataTypes)
@@ -78,6 +80,11 @@ function initModels(sequelize) {
 		targetKey: "idClinic",
 	})
 
+	medical_recipe.belongsTo(patient, {
+		foreignKey: "idPatient",
+		targetKey: "id",
+	})
+
 	medical_recipe.hasMany(medical_recipe_details, {
 		sourceKey: "id",
 		foreignKey: "id_medical_recipe",
@@ -88,8 +95,23 @@ function initModels(sequelize) {
 		targetKey: "id",
 	})
 
+	appointment.belongsTo(patient, {
+		foreignKey: "patientId",
+		targetKey: "id",
+	})
+
+	appointment.belongsTo(users, {
+		foreignKey: "idUser",
+		targetKey: "id",
+	})
+
+	patient.hasMany(appointment, {
+		foreignKey: "patientId",
+	})
+
 	return {
 		actions,
+		appointment,
 		areas,
 		clinic_history,
 		encounter,
